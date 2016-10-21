@@ -1,0 +1,90 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct 21 15:27:24 2016
+
+@author: rohit.r
+"""
+
+from collections import Counter
+#import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import SGDClassifier
+import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.externals import joblib
+import time
+
+x_val = joblib.load("C:/Indix Dumps/x_val")
+header_row = ['product_title', 'category_id']
+data_test = pd.read_csv('D:/Projects/External/Indix/Indix 2/Data/classification_blind_set_corrected.tsv', sep = '\t', header = None, names = header_row)
+dir = 'C:/Indix Dumps/Dumps/Test_1000/'
+
+####Predictions on test set
+start = time.time()
+for t in range(1,8):
+    print 'You are in vectorizer %d' % t
+    vect = joblib.load(dir +'vect_'+str(t))
+    test_corpus = vect.transform(data_test['product_title'])
+    del vect
+    for j in range(len(x_val[0:500])):
+        print 'You are processing %d classifier' % j
+        clf = joblib.load(dir + 'sgd_' +str(x_val[j])+ '_'+ str(t))
+        pred = clf.predict_proba(test_corpus)
+        prob =  np.array([i[1] for i in pred])
+        del clf
+        file_name = 'prediction_on_test_' + str(x_val[j])+ '_'+ str(t)
+        try:
+            prediction_on_test[file_name] = prob
+        except NameError:
+            tempx = {file_name: prob}
+            prediction_on_test = pd.DataFrame(tempx)
+end = time.time()
+
+(end-start)/60
+
+
+
+####Predictions are divided into 7 files for each vectorizer######
+####Writing the predictions to disk###################
+vals_chunk = 100000
+start = time.time()
+for i in range(7):
+    print i
+    if i <= 5:
+        initial = i*vals_chunk
+        final = (i+1)* vals_chunk
+        temp = prediction_on_test.iloc[initial:final,]
+        temp.to_csv('C:/Indix Dumps/Predictions_1000_classifiers/' + 'predictions_chunk_' + str(i) + '_vectorizer_' + str(t) +'.csv')
+    else:
+        initial = i*vals_chunk
+        temp = prediction_on_test.iloc[initial:,]
+        temp.to_csv('C:/Indix Dumps/Predictions_1000_classifiers/' + 'predictions_chunk_' + str(i) + '_vectorizer_' + str(t) + '.csv')
+end = time.time()    
+
+(end-start)/60
+
+'''prediction_on_test.to_csv('C:/Indix Dumps/Dumps/Test_predictions/prediction_on_test_1.txt')
+
+joblib.dump(prediction_on_test,'C:/Indix Dumps/prediction_on_test')'''
+
+
+for i in x_val[0:1000]:
+    path0 = 'prediction_on_test_'+str(i)+'_'+ str(0)
+    path1 = 'prediction_on_test_'+str(i)+'_'+ str(1)
+    path2 = 'prediction_on_test_'+str(i)+'_'+ str(2)
+    path3 = 'prediction_on_test_'+str(i)+'_'+ str(3)
+    path4 = 'prediction_on_test_'+str(i)+'_'+ str(4)
+    path5 = 'prediction_on_test_'+str(i)+'_'+ str(5)
+    path6 = 'prediction_on_test_'+str(i)+'_'+ str(6)
+    path7 = str(i)
+    try:
+        prediction_final[path7] = (prediction_on_test[path0]+prediction_on_test[path1]+
+        prediction_on_test[path2]+prediction_on_test[path3]+prediction_on_test[path4]+
+        prediction_on_test[path5]+prediction_on_test[path6])/(7.0)
+    except NameError:
+        temp_pred_error = {path7:(prediction_on_test[path0]+prediction_on_test[path1]+
+        prediction_on_test[path2]+prediction_on_test[path3]+prediction_on_test[path4]+
+        prediction_on_test[path5]+prediction_on_test[path6])/(7.0)}
+        
+        prediction_final = pd.DataFrame(temp_pred_error)
