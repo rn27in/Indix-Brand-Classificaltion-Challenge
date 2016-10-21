@@ -88,3 +88,35 @@ for i in x_val[0:1000]:
         prediction_on_test[path5]+prediction_on_test[path6])/(7.0)}
         
         prediction_final = pd.DataFrame(temp_pred_error)
+
+
+##############################################Predictions for 1000 to 5000 classifiers#################################        
+header_row = ['product_title', 'category_id']
+data_test = pd.read_csv('D:/hito/Raw Data/classification_blind_set_corrected.tsv', sep = '\t', header = None, names = header_row)
+
+
+start = time.time()
+for t in range(1):
+    print 'You are in vectorizer %d' % t
+    vect = joblib.load('D:/hito/Models_1000/' +'vect_'+str(t) + '_final_4000')
+    test_corpus = vect.transform(data_test['product_title'])
+    del vect
+    for j in range(len(x_val_final)):
+        print 'You are processing %d classifier' % j
+        clf = joblib.load('D:/hito/Models_1000/' + 'sgd_' +str(x_val_final[j])+ '_'+ str(t))
+        pred = clf.predict_proba(test_corpus)
+        prob =  np.array([i[1] for i in pred])
+        del clf
+        ###Changed filename to only number after doing everything manually in csv file
+        file_name =  str(x_val_final[j]) 
+        try:
+            prediction_on_test[file_name] = prob
+        except NameError:
+            tempx = {file_name: prob}
+            prediction_on_test = pd.DataFrame(tempx)
+end = time.time()
+
+
+prediction_on_test_1000_5000_classifiers = prediction_on_test
+
+joblib.dump(prediction_on_test_1000_5000_classifiers, 'D:/hito/Results/Predictions on 1000 to 5000 classifiers/prediction_on_test_1000_5000_classifiers')
