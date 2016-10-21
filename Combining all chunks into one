@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct 21 16:43:28 2016
+
+@author: rohit.r
+"""
+##########################Building 8 chunks of data for 7 vectorizers##################################
+
+################Repeat for chunks 1 to 5############################################################
+for i in range(8):
+    print i
+    if i == 0:
+        final_data_0_500 = pd.read_csv('D:/hito/Data/predictions_chunk_6_vectorizer_' + str(i) + '.csv', header = 0)
+        final_data_0_500 = final_data_0_500.iloc[:,1:]
+    else:
+        temp = pd.read_csv('D:/hito/Data/predictions_chunk_6_vectorizer_' + str(i) + '.csv', header = 0)
+        temp = temp.iloc[:,1:]
+        final_data_0_500 = pd.concat([final_data_0_500,temp], axis = 1)
+
+
+for i in range(8):
+    print i
+    if i == 0:
+        final_data_500_1000 = pd.read_csv('D:/hito/Results/Results from 500 to 1000 classifiers/predictions_chunk_6_vectorizer_' + str(i) + '.csv', header = 0)
+        final_data_500_1000 = final_data_500_1000.iloc[:,1:]
+    else:
+        temp = pd.read_csv('D:/hito/Results/Results from 500 to 1000 classifiers/predictions_chunk_6_vectorizer_' + str(i) + '.csv', header = 0)
+        temp = temp.iloc[:,1:]
+        final_data_500_1000 = pd.concat([final_data_500_1000,temp], axis = 1)
+
+
+
+chunk6 = pd.concat([final_data_0_500,final_data_500_1000], axis = 1)
+
+prediction_on_test = chunk6
+
+for i in x_val[0:1000]:
+    path0 = 'prediction_on_test_'+str(i)+'_'+ str(0)
+    path1 = 'prediction_on_test_'+str(i)+'_'+ str(1)
+    path2 = 'prediction_on_test_'+str(i)+'_'+ str(2)
+    path3 = 'prediction_on_test_'+str(i)+'_'+ str(3)
+    path4 = 'prediction_on_test_'+str(i)+'_'+ str(4)
+    path5 = 'prediction_on_test_'+str(i)+'_'+ str(5)
+    path6 = 'prediction_on_test_'+str(i)+'_'+ str(6)
+    path7 = 'prediction_on_test_'+str(i)+'_'+ str(7)
+    
+    path8 = str(i)
+    try:
+        prediction_final[path8] = (prediction_on_test[path0]+prediction_on_test[path1]+
+        prediction_on_test[path2]+prediction_on_test[path3]+prediction_on_test[path4]+
+        prediction_on_test[path5]+prediction_on_test[path6]+ prediction_on_test[path7])/(8.0)
+    except NameError:
+        temp_pred_error = {path8:(prediction_on_test[path0]+prediction_on_test[path1]+
+        prediction_on_test[path2]+prediction_on_test[path3]+prediction_on_test[path4]+
+        prediction_on_test[path5]+prediction_on_test[path6] + prediction_on_test[path7])/(8.0)}
+        
+        prediction_final = pd.DataFrame(temp_pred_error)
+
+temp123 = prediction_on_test_1000_5000_classifiers.iloc[600000:,]
+temp123 = temp123.reset_index(drop = True)
+
+prediction_temp = pd.concat([prediction_final,temp123], axis = 1)
+
+results = prediction_temp.idxmax(axis = 1)       
+
+results.to_csv('D:/hito/Results/19-Aug-2016/Results with 5000 classifiers/results_chunk_6_5000_classifiers.csv', index = False)       
+
+
+
