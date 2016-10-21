@@ -1,0 +1,82 @@
+###########This is in R#########################
+
+remove(list = ls())
+setwd('C:/Indix Dumps/Results_5000_classifiers')
+
+final <- data.frame()
+for(i in 0:6)
+{
+  path <- paste('results_chunk_', as.character(i),'_5000_classifiers' ,'.csv', sep = '')
+  temp = read.csv(path, header = FALSE)
+  final <- rbind(final,temp)
+  
+}
+
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Aug 21 16:17:20 2016
+
+@author: rohit.r
+"""
+
+###Creating hashes and applying to test results#################
+
+header_row_test = ['product_title', 'category_id']
+
+data_test = pd.read_csv('D:/Projects/External/Indix/Indix 2/Data/classification_blind_set_corrected.tsv', sep = '\t', header = None, names = header_row_test)
+
+hashes = np.array([hash(c) for c in dedups_df_final['product_title']])
+
+hashes_test = np.array([hash(c) for c in data_test['product_title']])                
+
+###
+##zero_data = np.zeros(shape=(len(data_test),1))
+
+feature = ['class']
+
+###data_final = pd.DataFrame(0, index = np.arange(len(data_test)) , columns = feature)       
+
+
+##Loading the file from final submission####
+data_results_sub = pd.read_csv('C:/Indix Dumps/Results_5000_classifiers/final_5000_classifiers_test.txt', sep = ',', header = None, names = feature)
+
+import time
+
+
+start = time.time()
+
+##Creating a dictionary of hashes#####
+a = {}
+for i in range(len(hashes)):
+    a[hashes[i]] = dedups_df_final.iloc[i,2]
+
+##Reducing complexity of code to linear
+for i in range(len(hashes_test)):
+    print i
+    try:
+        data_results_sub.iloc[i,0] = a[hashes_test[i]]
+    
+    except KeyError :
+        pass
+
+end = time.time()
+
+
+data_results_sub.to_csv('C:/Indix Dumps/Results_5000_classifiers/final_5000_classifiers_test_hashes.txt', index = False)    
+    
+        
+    
+
+data_hashes_train = pd.DataFrame([hashes,dedups_df_final])
+
+        
+end = time.time()
+
+    
+
+
+
+
+
+            
+            
