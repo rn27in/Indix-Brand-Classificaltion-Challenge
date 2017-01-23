@@ -1,4 +1,4 @@
-# Indix-Brand-Classificaltion-Challenge
+# Indix-Brand-Classification-Challenge
 This is a hackathon related to Supervised text Classification
 
 ##Final Accuracy = 75.63367999483238############################
